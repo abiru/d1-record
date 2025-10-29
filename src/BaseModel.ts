@@ -1,12 +1,19 @@
 export abstract class BaseModel<T> {
   private whereClauses: string[] = [];
   private whereParams: any[] = [];
+  private orderClause: string | null = null;
 
   constructor(public table: string, public db: D1Database) {}
 
   where(condition: string, ...params: any[]): this {
     this.whereClauses.push(condition);
     this.whereParams.push(...params);
+    return this;
+  }
+
+  orderBy(column: string, direction: "ASC" | "DESC" = "ASC"): this {
+    const normalizedDirection = direction.toUpperCase() === "DESC" ? "DESC" : "ASC";
+    this.orderClause = `${column} ${normalizedDirection}`;
     return this;
   }
 
@@ -26,6 +33,10 @@ export abstract class BaseModel<T> {
       query += ` WHERE ${this.whereClauses.join(" AND ")}`;
     }
 
+    if (this.orderClause) {
+      query += ` ORDER BY ${this.orderClause}`;
+    }
+
     if (typeof limit === "number") {
       query += ` LIMIT ${limit}`;
     }
@@ -36,6 +47,7 @@ export abstract class BaseModel<T> {
   private resetQuery(): void {
     this.whereClauses = [];
     this.whereParams = [];
+    this.orderClause = null;
   }
 
   async all(): Promise<T[]> {

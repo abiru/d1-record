@@ -96,4 +96,29 @@ describe("BaseModel", () => {
     expect(db.lastQuery).toBe("SELECT * FROM users LIMIT 1");
     expect(db.lastParams).toEqual([]);
   });
+
+  it("should apply order by clause when querying", async () => {
+    const db = new MockDB<User>({ results: [{ id: 1 }, { id: 2 }] });
+    const model = new UserModel("users", db as any);
+
+    await model.where("active = ?", 1).orderBy("age", "DESC").all();
+
+    expect(db.lastQuery).toBe("SELECT * FROM users WHERE active = ? ORDER BY age DESC");
+    expect(db.lastParams).toEqual([1]);
+  });
+
+  it("should reset order clause after query execution", async () => {
+    const db = new MockDB<User>({ firstResult: { id: 3 } });
+    const model = new UserModel("users", db as any);
+
+    await model.orderBy("id", "DESC").first();
+
+    expect(db.lastQuery).toBe("SELECT * FROM users ORDER BY id DESC LIMIT 1");
+
+    db.firstResult = { id: 4 };
+    await model.first();
+
+    expect(db.lastQuery).toBe("SELECT * FROM users LIMIT 1");
+    expect(db.lastParams).toEqual([]);
+  });
 });

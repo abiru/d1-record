@@ -88,6 +88,9 @@ const primary = await user.where("email = ?", "abiru@example.com").first();
 // 特定ID取得
 const one = await user.find(1);
 
+// 並び替え
+const latest = await user.orderBy("created_at", "DESC").first();
+
 // 更新
 await user.update(1, { name: "Updated" });
 
