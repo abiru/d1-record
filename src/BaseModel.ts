@@ -1,12 +1,30 @@
 export abstract class BaseModel<T> {
   private whereClauses: string[] = [];
   private whereParams: any[] = [];
+  private orderClause?: string;
+  private limitValue?: number;
+  private offsetValue?: number;
 
   constructor(public table: string, public db: D1Database) {}
 
   where(condition: string, ...params: any[]): this {
     this.whereClauses.push(condition);
     this.whereParams.push(...params);
+    return this;
+  }
+
+  orderBy(clause: string): this {
+    this.orderClause = clause;
+    return this;
+  }
+
+  limit(n: number): this {
+    this.limitValue = n;
+    return this;
+  }
+
+  offset(n: number): this {
+    this.offsetValue = n;
     return this;
   }
 
@@ -26,8 +44,20 @@ export abstract class BaseModel<T> {
       query += ` WHERE ${this.whereClauses.join(" AND ")}`;
     }
 
-    if (typeof limit === "number") {
-      query += ` LIMIT ${limit}`;
+    if (this.orderClause) {
+      query += ` ORDER BY ${this.orderClause}`;
+    }
+
+    const finalLimit = typeof limit === "number" ? limit : this.limitValue;
+
+    if (typeof finalLimit === "number") {
+      query += ` LIMIT ${finalLimit}`;
+    }
+
+    const finalOffset = this.offsetValue;
+
+    if (typeof finalLimit === "number" && typeof finalOffset === "number") {
+      query += ` OFFSET ${finalOffset}`;
     }
 
     return { query, params: [...this.whereParams] };
@@ -36,6 +66,9 @@ export abstract class BaseModel<T> {
   private resetQuery(): void {
     this.whereClauses = [];
     this.whereParams = [];
+    this.orderClause = undefined;
+    this.limitValue = undefined;
+    this.offsetValue = undefined;
   }
 
   async all(): Promise<T[]> {

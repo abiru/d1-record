@@ -96,4 +96,33 @@ describe("BaseModel", () => {
     expect(db.lastQuery).toBe("SELECT * FROM users LIMIT 1");
     expect(db.lastParams).toEqual([]);
   });
+
+  it("should apply ordering, limit, and offset when querying all", async () => {
+    const db = new MockDB<User>({ results: [] });
+    const model = new UserModel("users", db as any);
+
+    await model
+      .where("active = ?", 1)
+      .orderBy("id DESC")
+      .limit(10)
+      .offset(20)
+      .all();
+
+    expect(db.lastQuery).toBe(
+      "SELECT * FROM users WHERE active = ? ORDER BY id DESC LIMIT 10 OFFSET 20"
+    );
+    expect(db.lastParams).toEqual([1]);
+  });
+
+  it("should reset ordering and pagination after executing a query", async () => {
+    const db = new MockDB<User>({ results: [] });
+    const model = new UserModel("users", db as any);
+
+    await model.orderBy("age ASC").limit(5).offset(5).all();
+
+    await model.all();
+
+    expect(db.lastQuery).toBe("SELECT * FROM users");
+    expect(db.lastParams).toEqual([]);
+  });
 });

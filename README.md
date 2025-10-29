@@ -85,6 +85,14 @@ const all = await user.all();
 // 条件付き取得（メソッドチェーン対応）
 const primary = await user.where("email = ?", "abiru@example.com").first();
 
+// 並び替え & ページネーション
+const page = await user
+  .where("active = ?", 1)
+  .orderBy("id DESC")
+  .limit(10)
+  .offset(20)
+  .all();
+
 // 特定ID取得
 const one = await user.find(1);
 
