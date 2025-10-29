@@ -1,97 +1,77 @@
 # AGENTS.md
 
-## 🎯 目的
-このプロジェクトは、AIエージェント（Codex）を中心とした「ノーコードOSS開発」を目指します。
-
-Codexがコードを生成し、人間（メンテナ）がレビュー・承認することで、安全かつ迅速な開発サイクルを実現します。
-
----
-
-## 👥 役割定義
-
-### 🧠 Codex Agent（AI）
-- GitHubのIssue単位でコードを提案・実装する。
-- 実装はPull Request（PR）として提出。
-- 原則として以下を守る：
-  - TypeScript（ESM構文）
-  - ESLintとPrettierでフォーマット準拠
-  - テストを含む（**Bun標準の`bun test`** を使用）
-  - `README.md`・`CHANGELOG.md`更新を含める
-- コミットメッセージは Conventional Commits に準拠する。
-- すべてのPRには：
-  - 実装コード
-  - テスト
-  - ドキュメント更新
-  が含まれていること。
-
-### 👤 Human Maintainer（人間）
-- PRをレビューし、必要に応じてリクエスト修正。
-- mainブランチへのマージは手動で行う。
-- セキュリティリスク、OSSライセンス遵守を確認。
-
-### 🤖 CI Agent（GitHub Actions）
-- 自動でLint・Testを実行。
-- mainへのマージ時にnpm publishを行う。
-- Lint / Test に失敗したPRは自動的にRejectされる。
+## 🎯 Purpose
+This project embraces **AI-assisted open-source development**, led by Codex Agents.
+Codex generates code, while human maintainers review and approve changes for safety and quality.
+Together, we achieve a fast, no-code OSS development workflow.
 
 ---
 
-## 🔁 開発フロー
-1. HumanがGitHub Issueを作成（例：「BaseModelにupdateメソッドを追加」）。
-2. CodexがそのIssueを取得し、`feature/issue-xx`ブランチでPRを作成。
-3. CIが自動でLint & Testを実行。
-4. Humanがレビューし、Approve後にmainへマージ。
-5. mainへのマージをトリガーに自動npmリリース。
+## 👥 Roles
+
+### 🤖 Codex Agent (AI)
+- Works issue-by-issue, creating **branches under the `codex/` prefix** (e.g. `codex/add-pagination-support`).
+- Submits implementation as a **Pull Request (PR)** referencing the corresponding GitHub issue.
+- Must follow these conventions:
+  - Written in **TypeScript (ESM syntax)**
+  - Formatted with **ESLint** and **Prettier**
+  - Includes **tests (Jest / Bun test)**
+  - Updates `README.md` and `CHANGELOG.md` when needed
+  - Uses **Conventional Commits** style messages
+- PR descriptions must include:
+  `Closes #<issue-number>` to link issues automatically.
+
+### 👤 Human Maintainer
+- Creates issues and defines clear acceptance criteria.
+- Reviews Codex PRs and requests revisions if needed.
+- Merges into `main` only after verifying:
+  - Security & license compliance
+  - CI (lint, type-check, test) all pass
+
+### ⚙️ CI Agent (GitHub Actions)
+- Runs automatically on every PR and push.
+- Executes:
+  - ESLint & Prettier checks
+  - TypeScript compile (no emit)
+  - Bun tests with coverage
+- On main-branch merges, triggers release or version bump as configured.
 
 ---
 
-## 🧩 コミット規約（Conventional Commits）
-feat: add BaseModel CRUD methods
-fix: correct insert syntax for D1
+## 🔁 Workflow
+1. Human creates a GitHub Issue (e.g. “Add transaction helper”).
+2. Codex opens a branch: `codex/add-transaction-helper`.
+3. PR includes “Closes #<issue-number>” for auto-linking.
+4. CI runs lint, type check, and tests.
+5. Human reviews → approves → merges.
+6. CI performs release or publish step if configured.
+
+---
+
+## 🧩 Commit Conventions (Conventional Commits)
+feat: add pagination support
+fix: correct D1 query binding
 chore: update dependencies
-test: add coverage for create and find
-docs: update README for installation
+test: add coverage for CRUD methods
+docs: update README with examples
 
 ---
 
-## ✅ 品質ルール
-- コード整形: `eslint`, `prettier`
-- 型安全: `typescript --strict`
-- テスト: `bun test`
-- 外部接続を行わないMockDBを使用（D1接続は不要）
-- Lintパス必須（CI通過しないとマージ不可）
+## ✅ Quality Rules
+- Code format: `eslint`, `prettier`
+- Type safety: `typescript --strict`
+- Test framework: `bun test`
+- Lint and test must pass (CI required for merge)
 
 ---
 
-## 📚 ドキュメント生成
-- `typedoc`でAPIドキュメントを自動生成
-- GitHub Pagesで公開（`/docs`ブランチ）
+## 📚 Documentation
+- Auto-generate API docs via `typedoc`
+- Deploy docs to GitHub Pages from `/docs` branch
 
 ---
 
-## 💬 コーディング方針
-- D1のAPIを直接使う軽量ORM
-- 外部依存は最小限（Node標準 + Hono互換）
-- Readabilityとシンプルさを優先
-
----
-
-## ✅ 品質ルール
-- コード整形: `eslint`, `prettier`
-- 型安全: `typescript --strict`
-- テスト: `bun test`
-- 外部接続を行わないMockDBを使用（D1接続は不要）
-- Lintパス必須（CI通過しないとマージ不可）
-
----
-
-## 📚 ドキュメント生成
-- `typedoc`でAPIドキュメントを自動生成
-- GitHub Pagesで公開（`/docs`ブランチ）
-
----
-
-## 💬 コーディング方針
-- D1のAPIを直接使う軽量ORM
-- 外部依存は最小限（Node標準 + Hono互換）
-- Readabilityとシンプルさを優先
+## 💬 Coding Philosophy
+- Lightweight ORM built directly on Cloudflare D1
+- Minimal dependencies (Node built-ins + Hono compatibility)
+- Prioritize clarity and simplicity
