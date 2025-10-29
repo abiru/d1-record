@@ -9,11 +9,13 @@ type CreationAttributes<T> = Simplify<
 type UpdateAttributes<T> = Simplify<Partial<Omit<T, "id">>>;
 
 type RowWithId<T> = "id" extends keyof T ? Simplify<Omit<T, "id"> & { id: NonNullable<T["id"]> }> : T;
+type OrderDirection = "ASC" | "DESC";
+type OrderDirectionInput = OrderDirection | Lowercase<OrderDirection>;
 
 export abstract class BaseModel<T extends object> {
   private whereClauses: string[] = [];
   private whereParams: unknown[] = [];
-  private orderClause?: string;
+  private orderClauses: string[] = [];
   private limitValue?: number;
   private offsetValue?: number;
 
@@ -25,8 +27,28 @@ export abstract class BaseModel<T extends object> {
     return this;
   }
 
-  orderBy(clause: string): this {
-    this.orderClause = clause;
+  orderBy(column: string): this;
+  orderBy(column: string, direction: OrderDirectionInput): this;
+  orderBy(column: string, direction: OrderDirectionInput = "ASC"): this {
+    const trimmedColumn = column.trim();
+
+    if (arguments.length === 1) {
+      if (trimmedColumn.includes(" ")) {
+        this.orderClauses.push(trimmedColumn);
+        return this;
+      }
+
+      this.orderClauses.push(`${trimmedColumn} ASC`);
+      return this;
+    }
+
+    if (trimmedColumn.includes(" ")) {
+      this.orderClauses.push(trimmedColumn);
+      return this;
+    }
+
+    const normalizedDirection = direction.toUpperCase() as OrderDirection;
+    this.orderClauses.push(`${trimmedColumn} ${normalizedDirection}`);
     return this;
   }
 
@@ -56,8 +78,8 @@ export abstract class BaseModel<T extends object> {
       query += ` WHERE ${this.whereClauses.join(" AND ")}`;
     }
 
-    if (this.orderClause) {
-      query += ` ORDER BY ${this.orderClause}`;
+    if (this.orderClauses.length > 0) {
+      query += ` ORDER BY ${this.orderClauses.join(", ")}`;
     }
 
     const finalLimit = typeof limit === "number" ? limit : this.limitValue;
@@ -78,7 +100,7 @@ export abstract class BaseModel<T extends object> {
   private resetQuery(): void {
     this.whereClauses = [];
     this.whereParams = [];
-    this.orderClause = undefined;
+    this.orderClauses = [];
     this.limitValue = undefined;
     this.offsetValue = undefined;
   }
