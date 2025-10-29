@@ -89,10 +89,13 @@ const primary = await user.where("email = ?", "abiru@example.com").first();
 // 並び替え & ページネーション
 const page = await user
   .where("active = ?", 1)
-  .orderBy("id DESC")
+  .orderBy("active", "DESC")
+  .orderBy("id")
   .limit(10)
   .offset(20)
   .all();
+
+// orderBy() はカラム名と方向を分けて指定でき、複数回チェーンすることで複合ソートに対応します。
 
 // 特定ID取得
 const one = await user.find(1);
@@ -107,7 +110,25 @@ await user.delete(1);
 
 ---
 
-### 3️⃣ Honoとの統合例
+### 3️⃣ トランザクションで複数操作をまとめる
+
+```ts
+import { transaction } from "d1-record";
+import { User } from "./models/User";
+
+await transaction(env.DB, async tx => {
+  const users = new User(tx);
+  const created = await users.create({ name: "Alice", email: "alice@example.com" });
+
+  await users.update(created.id!, { name: "Alice (verified)" });
+});
+```
+
+`transaction()` は `BEGIN` / `COMMIT` / `ROLLBACK` を自動で実行し、コールバック内で例外が発生した場合でも安全に巻き戻します。
+
+---
+
+### 4️⃣ Honoとの統合例
 
 ```ts
 import { Hono } from "hono";

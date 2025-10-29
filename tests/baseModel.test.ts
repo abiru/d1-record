@@ -114,6 +114,26 @@ describe("BaseModel", () => {
     expect(db.lastParams).toEqual([1]);
   });
 
+  it("should support multiple orderBy clauses", async () => {
+    const db = new MockDB<User>({ results: [] });
+    const model = new UserModel("users", db as any);
+
+    await model.orderBy("active", "desc").orderBy("id", "ASC").limit(5).all();
+
+    expect(db.lastQuery).toBe(
+      "SELECT * FROM users ORDER BY active DESC, id ASC LIMIT 5"
+    );
+  });
+
+  it("should default to ascending order when only the column is provided", async () => {
+    const db = new MockDB<User>({ results: [] });
+    const model = new UserModel("users", db as any);
+
+    await model.orderBy("age").all();
+
+    expect(db.lastQuery).toBe("SELECT * FROM users ORDER BY age ASC");
+  });
+
   it("should reset ordering and pagination after executing a query", async () => {
     const db = new MockDB<User>({ results: [] });
     const model = new UserModel("users", db as any);
