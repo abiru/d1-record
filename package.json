@@ -11,7 +11,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "dev": "bun run src/index.ts",
+    "build": "tsc",
+    "dev": "bun test",
     "test": "bun test",
     "lint": "tsc --noEmit"
   },
