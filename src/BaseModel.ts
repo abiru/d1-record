@@ -1,13 +1,25 @@
-export abstract class BaseModel<T> {
+type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+type PrimaryKeyValue<T> = "id" extends keyof T ? NonNullable<T["id"]> : never;
+
+type CreationAttributes<T> = Simplify<
+  Omit<T, "id"> & ("id" extends keyof T ? Partial<Pick<T, "id">> : {})
+>;
+
+type UpdateAttributes<T> = Simplify<Partial<Omit<T, "id">>>;
+
+type RowWithId<T> = "id" extends keyof T ? Simplify<Omit<T, "id"> & { id: NonNullable<T["id"]> }> : T;
+
+export abstract class BaseModel<T extends object> {
   private whereClauses: string[] = [];
-  private whereParams: any[] = [];
+  private whereParams: unknown[] = [];
   private orderClause?: string;
   private limitValue?: number;
   private offsetValue?: number;
 
   constructor(public table: string, public db: D1Database) {}
 
-  where(condition: string, ...params: any[]): this {
+  where(condition: string, ...params: unknown[]): this {
     this.whereClauses.push(condition);
     this.whereParams.push(...params);
     return this;
@@ -28,11 +40,11 @@ export abstract class BaseModel<T> {
     return this;
   }
 
-  async first(): Promise<T | null> {
+  async first(): Promise<RowWithId<T> | null> {
     const { query, params } = this.buildSelectQuery(1);
     const statement = this.db.prepare(query);
     const executor = params.length ? statement.bind(...params) : statement;
-    const result = await executor.first<T>();
+    const result = await executor.first<RowWithId<T>>();
     this.resetQuery();
     return result ?? null;
   }
@@ -71,31 +83,37 @@ export abstract class BaseModel<T> {
     this.offsetValue = undefined;
   }
 
-  async all(): Promise<T[]> {
+  async all(): Promise<Array<RowWithId<T>>> {
     const { query, params } = this.buildSelectQuery();
     const statement = this.db.prepare(query);
     const executor = params.length ? statement.bind(...params) : statement;
-    const { results } = await executor.all<T>();
+    const { results } = await executor.all<RowWithId<T>>();
     this.resetQuery();
     return results;
   }
 
-  async find(id: number): Promise<T | null> {
+  async find(id: PrimaryKeyValue<T>): Promise<RowWithId<T> | null> {
     this.resetQuery();
-    return await this.db.prepare(`SELECT * FROM ${this.table} WHERE id = ?`).bind(id).first<T>();
+    return await this.db
+      .prepare(`SELECT * FROM ${this.table} WHERE id = ?`)
+      .bind(id)
+      .first<RowWithId<T>>();
   }
 
-  async create(data: Partial<T>): Promise<void> {
+  async create(data: CreationAttributes<T>): Promise<RowWithId<T>> {
     this.resetQuery();
     const keys = Object.keys(data);
     const placeholders = keys.map(() => "?").join(", ");
     const values = Object.values(data);
-    await this.db.prepare(
+    return await this.db
+      .prepare(
       `INSERT INTO ${this.table} (${keys.join(", ")}) VALUES (${placeholders})`
-    ).bind(...values).run();
+      )
+      .bind(...values)
+      .run<RowWithId<T>>();
   }
 
-  async update(id: number, data: Partial<T>): Promise<void> {
+  async update(id: PrimaryKeyValue<T>, data: UpdateAttributes<T>): Promise<void> {
     this.resetQuery();
     const sets = Object.keys(data).map(k => `${k} = ?`).join(", ");
     const values = [...Object.values(data), id];
@@ -104,8 +122,13 @@ export abstract class BaseModel<T> {
     ).bind(...values).run();
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: PrimaryKeyValue<T>): Promise<void> {
     this.resetQuery();
     await this.db.prepare(`DELETE FROM ${this.table} WHERE id = ?`).bind(id).run();
   }
 }
+
+export type BaseModelCreationAttributes<T extends object> = CreationAttributes<T>;
+export type BaseModelUpdateAttributes<T extends object> = UpdateAttributes<T>;
+export type BaseModelRow<T extends object> = RowWithId<T>;
+export type BaseModelPrimaryKey<T extends object> = PrimaryKeyValue<T>;

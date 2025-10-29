@@ -15,22 +15,22 @@ class MockStatement<T> {
     return this;
   }
 
-  async all(): Promise<{ results: T[] }> {
+  async all<R = T>(): Promise<{ results: R[] }> {
     this.db.lastQuery = this.query;
     this.db.lastParams = this.params;
-    return { results: this.db.results };
+    return { results: this.db.results as unknown as R[] };
   }
 
-  async first(): Promise<T | null> {
+  async first<R = T>(): Promise<R | null> {
     this.db.lastQuery = this.query;
     this.db.lastParams = this.params;
-    return this.db.firstResult;
+    return this.db.firstResult as unknown as R | null;
   }
 
-  async run(): Promise<{ success: boolean }> {
+  async run<R = { success: boolean }>(): Promise<R> {
     this.db.lastQuery = this.query;
     this.db.lastParams = this.params;
-    return { success: true };
+    return { success: true } as R;
   }
 }
 
