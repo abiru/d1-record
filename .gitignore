@@ -1,0 +1,38 @@
+
+# Node & Bun dependencies
+node_modules/
+bun.lockb
+
+# Build output
+dist/
+build/
+.out/
+.cache/
+
+# TypeScript
+*.tsbuildinfo
+
+# Tests & coverage
+coverage/
+*.log
+.vscode-test/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+
+# Typedoc output
+docs/
+
+# Misc
+*.swp
+*.swo

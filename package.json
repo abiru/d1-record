@@ -1,0 +1,18 @@
+{
+  "name": "d1-record",
+  "version": "0.1.0",
+  "devDependencies": {
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "prettier": "^3.6.2",
+    "typedoc": "^0.28.14",
+    "typescript": "^5.4.0"
+  },
+  "license": "MIT",
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "test": "bun test"
+  },
+  "type": "module"
+}

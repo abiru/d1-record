@@ -1,0 +1,9 @@
+{
+  "extends": ["eslint:recommended", "plugin:import/recommended", "prettier"],
+  "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" },
+  "env": { "node": true, "es2021": true },
+  "rules": {
+    "no-unused-vars": "warn",
+    "import/order": ["error", { "alphabetize": { "order": "asc" } }]
+  }
+}

@@ -1,0 +1,86 @@
+name: "✨ Codex Feature Request"
+description: "Codexエージェントに新しい機能・修正・ドキュメント更新を依頼します"
+labels: ["codex", "feature"]
+title: "[feat] <短い概要をここに記載>"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🧠 Codex開発ガイド
+        このテンプレートは、AIエージェント（Codex）に作業を依頼するためのIssueです。
+        **1 Issue = 1 明確な機能** として記述してください。
+        Codexはこの内容を読み取り、`feature/issue-xxx` ブランチでPRを自動生成します。
+
+  - type: input
+    id: summary
+    attributes:
+      label: "🎯 概要（Summary）"
+      description: "どのような機能・修正をCodexに依頼しますか？（例：BaseModelに where() メソッドを追加）"
+      placeholder: "例: add where() and first() query helpers"
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: "📋 詳細仕様（Details）"
+      description: "どのような挙動・仕様を想定していますか？ サンプルコードや入力/出力例を含めるとCodexの理解が深まります。"
+      placeholder: |
+        例:
+        ```ts
+        const users = await User.where("age > ?", 20).all();
+        const first = await User.where("email LIKE ?", "%@gmail.com").first();
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: "🧪 テスト方針（Tests）"
+      description: "Codexが自動生成するテストで確認すべき内容を記載してください。"
+      placeholder: |
+        例:
+        - MockDBを使ってwhere句が正しくbindされているかを確認
+        - find()が1件のみ返すことを確認
+    validations:
+      required: false
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: "🧱 Issueタイプ"
+      description: "依頼の種類を選択"
+      options:
+        - 新機能（feat）
+        - バグ修正（fix）
+        - ドキュメント更新（docs）
+        - テスト追加（test）
+        - メンテナンス（chore）
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "🔗 関連Issue・参考資料"
+      description: "関連するIssue番号、リンク、ドキュメントなどがあれば記載"
+      placeholder: "#12, https://example.com/spec"
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        🧩 **Codex実行ルール**
+        - PRには必ず `README.md` と `CHANGELOG.md` の更新を含めること。
+        - `bun test` で全テストを通過する状態でPRを作成すること。
+        - コミットメッセージは Conventional Commits に準拠。
+        - コードは TypeScript / ESM構文 / ESLint + Prettier 準拠で記述すること。
+
+        ✅ **完了条件**
+        - テストがすべて通過する。
+        - Lint/FormatがCIでPass。
+        - Human Maintainerによるレビュー承認。
