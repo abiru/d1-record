@@ -76,8 +76,9 @@ export class User extends BaseModel<UserSchema> {
 ```ts
 const user = new User(env.DB);
 
-// 作成
-await user.create({ name: "Abiru", email: "abiru@example.com" });
+// 作成（型推論でidなどを自動補完）
+const created = await user.create({ name: "Abiru", email: "abiru@example.com" });
+created.id; // => number
 
 // 一覧取得
 const all = await user.all();
@@ -96,8 +97,9 @@ const page = await user
 // 特定ID取得
 const one = await user.find(1);
 
-// 更新
+// 更新（存在するカラムのみ許可）
 await user.update(1, { name: "Updated" });
+// await user.update(1, { invalid: "nope" }); // ❌ TypeScriptエラー
 
 // 削除
 await user.delete(1);
