@@ -82,6 +82,9 @@ await user.create({ name: "Abiru", email: "abiru@example.com" });
 // 一覧取得
 const all = await user.all();
 
+// 条件付き取得（メソッドチェーン対応）
+const primary = await user.where("email = ?", "abiru@example.com").first();
+
 // 特定ID取得
 const one = await user.find(1);
 
