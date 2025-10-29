@@ -114,7 +114,7 @@ await user.delete(1);
 
 ```ts
 import { transaction } from "d1-record";
-import { User } from "./models/User";
+import { User } from "./User";
 
 await transaction(env.DB, async tx => {
   const users = new User(tx);
@@ -132,7 +132,7 @@ await transaction(env.DB, async tx => {
 
 ```ts
 import { Hono } from "hono";
-import { User } from "./models/User";
+import { User } from "./User";
 
 const app = new Hono<{ Bindings: { DB: D1Database } }>();
 
