@@ -42,7 +42,9 @@ bun add d1-record
 ### npm / pnpm
 
 ```bash
-bun install d1-record
+npm install d1-record
+# または
+pnpm add d1-record
 ```
 
 ---
