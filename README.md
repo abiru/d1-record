@@ -1,39 +1,39 @@
 # 🌱 d1-record
 
-> Cloudflare D1 用の軽量 ActiveRecord風 ORM — *TypeScript × Bun × Hono*
+> Lightweight ActiveRecord-style ORM for Cloudflare D1 — *TypeScript × Bun × Hono*
 
 ---
 
-## 🧠 概要
+## 🧠 Overview
 
-`d1-record` は、**Cloudflare D1** を手軽に扱うための **ActiveRecordライクなORM** です。
-Ruby on Rails の思想を TypeScript と Bun 上で再現し、
-最小限の構成で直感的にデータ操作を行えます。
+`d1-record` is an **ActiveRecord-inspired ORM** designed to make **Cloudflare D1** easy to use.
+It brings the spirit of Ruby on Rails to TypeScript and Bun,
+so you can work with data intuitively using a minimal setup.
 
 ---
 
-## 🚀 特徴
+## 🚀 Features
 
-✅ **ActiveRecord風のAPI設計**
-`User.all()` や `User.find(id)` のように直感的。
+✅ **ActiveRecord-style API design**
+Intuitive calls like `User.all()` and `User.find(id)`.
 
-✅ **Cloudflareネイティブ**
-Workers / Hono / D1 に直接組み込める。
+✅ **Cloudflare-native**
+Plug directly into Workers, Hono, and D1.
 
 ✅ **Zero Dependency**
-標準APIのみで動作。外部依存なし。
+Runs on standard APIs only—no external dependencies.
 
-✅ **TypeScript + Bun対応**
-型安全で高速。ローカル開発とCloudflare本番環境の差を最小化。
+✅ **TypeScript + Bun ready**
+Type-safe and fast, minimizing differences between local development and Cloudflare production.
 
-✅ **Lint & Format統一**
-`ESLint` + `Prettier` により、全開発者・AIが同一フォーマットでコーディング。
+✅ **Consistent linting and formatting**
+`ESLint` + `Prettier` keep every contributor and AI agent on the same style.
 
 ---
 
-## 📦 インストール
+## 📦 Installation
 
-### Bun（推奨）
+### Bun (recommended)
 
 ```bash
 bun add d1-record
@@ -43,15 +43,15 @@ bun add d1-record
 
 ```bash
 npm install d1-record
-# または
+# or
 pnpm add d1-record
 ```
 
 ---
 
-## ⚙️ 使い方
+## ⚙️ Usage
 
-### 1️⃣ モデル定義
+### 1️⃣ Define a model
 
 ```ts
 import { BaseModel } from "d1-record";
@@ -71,22 +71,22 @@ export class User extends BaseModel<UserSchema> {
 
 ---
 
-### 2️⃣ CRUD操作
+### 2️⃣ Perform CRUD operations
 
 ```ts
 const user = new User(env.DB);
 
-// 作成（型推論でidなどを自動補完）
+// Create (TypeScript infers fields like id automatically)
 const created = await user.create({ name: "Abiru", email: "abiru@example.com" });
 created.id; // => number
 
-// 一覧取得
+// Fetch all records
 const all = await user.all();
 
-// 条件付き取得（メソッドチェーン対応）
+// Conditional queries (supports method chaining)
 const primary = await user.where("email = ?", "abiru@example.com").first();
 
-// 並び替え & ページネーション
+// Sorting and pagination
 const page = await user
   .where("active = ?", 1)
   .orderBy("active", "DESC")
@@ -95,22 +95,22 @@ const page = await user
   .offset(20)
   .all();
 
-// orderBy() はカラム名と方向を分けて指定でき、複数回チェーンすることで複合ソートに対応します。
+// orderBy() accepts separate column and direction arguments, and chaining enables multi-column sorting.
 
-// 特定ID取得
+// Find by primary key
 const one = await user.find(1);
 
-// 更新（存在するカラムのみ許可）
+// Update (only allows existing columns)
 await user.update(1, { name: "Updated" });
-// await user.update(1, { invalid: "nope" }); // ❌ TypeScriptエラー
+// await user.update(1, { invalid: "nope" }); // ❌ TypeScript error
 
-// 削除
+// Delete
 await user.delete(1);
 ```
 
 ---
 
-### 3️⃣ トランザクションで複数操作をまとめる
+### 3️⃣ Group multiple operations in a transaction
 
 ```ts
 import { transaction } from "d1-record";
@@ -124,11 +124,11 @@ await transaction(env.DB, async tx => {
 });
 ```
 
-`transaction()` は `BEGIN` / `COMMIT` / `ROLLBACK` を自動で実行し、コールバック内で例外が発生した場合でも安全に巻き戻します。
+`transaction()` automatically handles `BEGIN`, `COMMIT`, and `ROLLBACK`, ensuring safe rollback when an exception occurs inside the callback.
 
 ---
 
-### 4️⃣ Honoとの統合例
+### 4️⃣ Integration example with Hono
 
 ```ts
 import { Hono } from "hono";
@@ -146,28 +146,28 @@ export default app;
 
 ---
 
-## 🧩 設計ポリシー
+## 🧩 Design principles
 
-* D1の `prepare().bind()` を常に使用し、SQLインジェクションを防止
-* ORMというより「**ActiveRecord風の薄いレイヤー**」
-* 可読性と保守性を最優先
-* **ESLint + Prettier** により自動整形
+* Always use D1 `prepare().bind()` to prevent SQL injection
+* Focus on a **thin ActiveRecord-inspired layer** rather than a heavy ORM
+* Prioritize readability and maintainability
+* Rely on **ESLint + Prettier** for automatic formatting
 
   * Lint: `bun run lint`
   * Format: `bun run format`
 
 ---
 
-## 🧪 テスト
+## 🧪 Testing
 
-Bun標準のテストランナーを使用。
-外部DBを利用せず、`MockDB` を使った高速テストが可能です。
+Use Bun's built-in test runner.
+Run fast tests with `MockDB` without connecting to an external database.
 
 ```bash
 bun test
 ```
 
-テストサンプル：
+Sample test:
 
 ```ts
 import { describe, it, expect } from "bun:test";
@@ -190,9 +190,9 @@ describe("BaseModel", () => {
 
 ---
 
-## 🧰 開発環境構築
+## 🧰 Development setup
 
-### セットアップ
+### Install dependencies
 
 ```bash
 bun install
@@ -205,13 +205,13 @@ bun run lint
 bun run format
 ```
 
-### テスト
+### Run tests
 
 ```bash
 bun test
 ```
 
-### APIドキュメント生成（Typedoc）
+### Generate API docs (Typedoc)
 
 ```bash
 bun run typedoc
@@ -219,17 +219,17 @@ bun run typedoc
 
 ---
 
-## 🪜 開発フロー（概要）
+## 🪜 Development workflow (overview)
 
-1. Issueを作成（`.github/ISSUE_TEMPLATE/feature_codex.yml`を使用）
-2. Codexが `feature/issue-xxx` ブランチでPRを生成
-3. CI（GitHub Actions）が `bun test` / `lint` を実行
-4. Maintainerがレビューして `main` にマージ
-5. 自動で npm に公開 🚀
+1. Create an issue (use `.github/ISSUE_TEMPLATE/feature_codex.yml`)
+2. Codex generates a PR from a `feature/issue-xxx` branch
+3. CI (GitHub Actions) runs `bun test` and `lint`
+4. A maintainer reviews and merges into `main`
+5. Publish to npm automatically 🚀
 
 ---
 
-## 🧱 フォルダ構成
+## 🧱 Project structure
 
 ```
 d1-record/
@@ -255,9 +255,9 @@ d1-record/
 
 ---
 
-## 🧠 技術スタック
+## 🧠 Tech stack
 
-| カテゴリ      | 技術                           |
+| Category | Technology                   |
 | --------- | ---------------------------- |
 | Language  | TypeScript (ESM)             |
 | Runtime   | Bun                          |
@@ -271,14 +271,14 @@ d1-record/
 
 ---
 
-## 💬 コミュニティ & コントリビューション
+## 💬 Community & contributions
 
-* 貢献方法 → [CONTRIBUTING.md](CONTRIBUTING.md)
-* Codex運用 → [AGENTS.md](AGENTS.md)
-* 質問・議論 → [Discussions](https://github.com/abiru/d1-record/discussions)
+* Contributing guide → [CONTRIBUTING.md](CONTRIBUTING.md)
+* Codex operations → [AGENTS.md](AGENTS.md)
+* Questions & discussions → [Discussions](https://github.com/abiru/d1-record/discussions)
 
 ---
 
-## 🧾 ライセンス
+## 🧾 License
 
 [MIT License](LICENSE)

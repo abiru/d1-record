@@ -1,86 +1,85 @@
-
 # 🤝 CONTRIBUTING.md — d1-record Contribution Guide
 
-## 🎯 目的
+## 🎯 Purpose
 
-`d1-record` は、**Cloudflare D1 用の軽量 ActiveRecord風 ORM（TypeScript / Bun）** を目指すOSSです。
-このプロジェクトは、**AIエージェント（Codex）と人間の共同開発**によって進化します。
-ここでは、貢献（Contribution）に関するルール・フロー・ベストプラクティスをまとめています。
-
----
-
-## 🧠 開発スタイル
-
-このプロジェクトは以下の3者で運営されています：
-
-| 役割                      | 担当内容                                  |
-| ----------------------- | ------------------------------------- |
-| 🧠 **Codex Agent**      | Issueを読み取り、コード・テスト・ドキュメントを自動生成してPRを提出 |
-| 👤 **Human Maintainer** | PRレビュー、設計判断、npmリリース管理                 |
-| 🤖 **CI Agent**         | Lint・Test・Releaseを自動実行                |
-
-AIと人間が補完し合うことで、安全かつ迅速な開発サイクルを実現します。
+`d1-record` is an OSS project aiming to become a **lightweight ActiveRecord-style ORM for Cloudflare D1 (TypeScript / Bun)**.
+The project grows through collaboration between **Codex AI agents and human contributors**.
+This guide summarizes the rules, workflow, and best practices for contributing.
 
 ---
 
-## 🪜 開発フロー
+## 🧠 Development model
 
-### 1️⃣ Issue作成
+The project is driven by three roles:
 
-* すべての開発タスクは **GitHub Issue** から始まります。
-* Codexに依頼する場合は `.github/ISSUE_TEMPLATE/feature_codex.yml` を使用してください。
-* 1つのIssueは1つの明確な目的に絞ります（例：「BaseModelにwhere()を追加」）。
+| Role                  | Responsibilities                                                     |
+| --------------------- | ------------------------------------------------------------------- |
+| 🧠 **Codex Agent**      | Reads issues, generates code/tests/docs automatically, and opens PRs |
+| 👤 **Human Maintainer** | Reviews PRs, makes architectural decisions, manages npm releases     |
+| 🤖 **CI Agent**         | Runs lint, tests, and release automation                             |
 
-### 2️⃣ CodexがPRを生成
+Humans and AI work together to maintain a safe, fast development cycle.
 
-* CodexはIssueの内容を解析し、`feature/issue-xxx` ブランチでPRを自動生成します。
-* PRには必ず以下を含めます：
+---
 
-  * コード実装
-  * テストコード（`bun test`で通過可能）
-  * ドキュメント更新（`README.md`, `CHANGELOG.md`）
+## 🪜 Development flow
 
-### 3️⃣ CIチェック
+### 1️⃣ Create an issue
 
-* GitHub Actionsが自動的に以下を実行します：
+* Every task starts with a **GitHub Issue**.
+* When requesting Codex, use `.github/ISSUE_TEMPLATE/feature_codex.yml`.
+* Keep each issue focused on a single goal (e.g., “Add where() to BaseModel”).
+
+### 2️⃣ Codex opens a PR
+
+* Codex interprets the issue and opens a PR from a `feature/issue-xxx` branch.
+* Every PR must include:
+
+  * Implementation code
+  * Tests that pass with `bun test`
+  * Documentation updates (`README.md`, `CHANGELOG.md`)
+
+### 3️⃣ CI checks
+
+* GitHub Actions automatically runs:
 
   * `bun lint`
   * `bun test`
-* CIを通過しないPRは自動Rejectされます。
+* PRs that fail CI are automatically rejected.
 
-### 4️⃣ レビューとマージ
+### 4️⃣ Review and merge
 
-* Human Maintainerが内容をレビュー。
-* 問題なければ `main` ブランチに手動マージ。
-* マージをトリガーに自動で npm 公開（`release.yml`）。
+* A human maintainer reviews the changes.
+* Approved PRs are manually merged into `main`.
+* Merging triggers npm publishing via `release.yml`.
 
 ---
 
-## 📜 コーディング規約
+## 📜 Coding standards
 
-### ✅ 言語と構文
+### ✅ Language and syntax
 
-* TypeScript + ESM構文
-* Bun環境に準拠（Node特有のAPIは使用しない）
-* `strict: true` モードで型安全を維持
+* TypeScript with ESM syntax
+* Target the Bun runtime (avoid Node-specific APIs)
+* Keep `strict: true` for type safety
 
-### ✅ コード整形
+### ✅ Formatting
 
 * Linter: ESLint
 * Formatter: Prettier
-* Lintエラーは必ず修正してからPR提出
+* Fix all lint errors before opening a PR
 
-### ✅ テスト
+### ✅ Testing
 
-* テストランナー：Bun標準（`bun test`）
-* 外部DB接続は禁止、MockDBを使用
-* `describe()` / `it()` 構文で明確な意図を記述
+* Test runner: Bun (`bun test`)
+* Do not connect to external databases—use MockDB
+* Express intent clearly with `describe()` / `it()` blocks
 
-### ✅ コミット規約
+### ✅ Commit messages
 
-すべてのコミットメッセージは [Conventional Commits](https://www.conventionalcommits.org/) に従います：
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-例:
+Examples:
 
 * feat: add where() query helper
 * fix: correct update() SQL bind order
@@ -90,46 +89,46 @@ AIと人間が補完し合うことで、安全かつ迅速な開発サイクル
 
 ---
 
-## 🧩 ドキュメント
+## 🧩 Documentation
 
-* APIドキュメントは `typedoc` により自動生成されます。
-* コード変更時は `README.md` と `CHANGELOG.md` を更新してください。
-* 新しい公開APIを追加した場合は、使用例を追記すること。
-
----
-
-## 🧱 ブランチ運用ルール
-
-| ブランチ名               | 用途                 |
-| ------------------- | ------------------ |
-| `main`              | 安定版（CI通過後、npm自動公開） |
-| `feature/issue-xxx` | Codexが生成する作業ブランチ   |
-| `docs/*`            | ドキュメント関連           |
-| `test/*`            | テスト関連改善            |
+* API docs are generated automatically via `typedoc`.
+* Update `README.md` and `CHANGELOG.md` with every code change.
+* Add usage examples whenever you introduce a new public API.
 
 ---
 
-## 🧰 開発環境セットアップ
+## 🧱 Branch strategy
 
-インストール:
+| Branch name        | Purpose                                      |
+| ------------------ | -------------------------------------------- |
+| `main`             | Stable releases (CI passes, npm publishes)    |
+| `feature/issue-xxx`| Working branches generated by Codex           |
+| `docs/*`           | Documentation updates                         |
+| `test/*`           | Testing improvements                          |
+
+---
+
+## 🧰 Development environment
+
+Install dependencies:
 
 ```
 bun install
 ```
 
-テスト:
+Run tests:
 
 ```
 bun test
 ```
 
-Lint:
+Run lint:
 
 ```
 bun lint
 ```
 
-ドキュメント生成（オプション）:
+Generate docs (optional):
 
 ```
 bun run typedoc
@@ -137,39 +136,39 @@ bun run typedoc
 
 ---
 
-## 🧑‍💻 人間コントリビューター向け
+## 🧑‍💻 For human contributors
 
-人間が直接コードを修正・追加する場合：
+When updating code directly:
 
-* Codexと同じルールを遵守（型安全・Lint・テスト必須）
-* PRには説明・背景・動作確認方法を明記
-* 小さな修正であってもテストを含めること
-
----
-
-## 🤖 Codex Agent向け補足
-
-Codexは以下を遵守してください：
-
-* `bun test` に通るコードのみPRすること
-* `README.md`・`CHANGELOG.md`を更新すること
-* SQLは常に `prepare().bind()` を使用
-* 外部依存は追加しないこと（標準APIで完結）
-* 可読性とメンテナンス性を最優先とすること
+* Follow the same rules as Codex (type safety, linting, tests)
+* Explain context, motivation, and verification steps in your PR
+* Include tests even for small fixes
 
 ---
 
-## 💬 コミュニケーション
+## 🤖 Notes for Codex agents
 
-* 仕様相談や改善提案は [Discussions](https://github.com/ledkikaku/d1-record/discussions) で歓迎。
-* バグ報告は Issue タブから行ってください。
-* PRに対するレビューはオープンな形で行われます。
+Codex must:
+
+* Submit code that passes `bun test`
+* Update `README.md` and `CHANGELOG.md`
+* Use `prepare().bind()` for all SQL statements
+* Avoid adding external dependencies (stick to standard APIs)
+* Prioritize readability and maintainability
 
 ---
 
-## ❤️ 感謝
+## 💬 Communication
 
-このプロジェクトは「**Herokuの美学 × Cloudflareの軽量性**」を再構築する試みです。
-あなたの貢献が、Web開発をよりシンプルで美しいものにします。
+* Share proposals or questions in [Discussions](https://github.com/ledkikaku/d1-record/discussions).
+* Report bugs via the Issues tab.
+* Keep PR reviews transparent and open.
+
+---
+
+## ❤️ Appreciation
+
+This project reimagines the **elegance of Heroku** combined with the **lightweight power of Cloudflare**.
+Your contributions make web development simpler and more beautiful.
 
 **Thank you for helping build `d1-record`!**
